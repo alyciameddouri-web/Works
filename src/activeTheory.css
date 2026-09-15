@@ -109,6 +109,14 @@ html {
   -webkit-tap-highlight-color: auto;
 }
 
+div#Stage textarea,
+#Stage .wrapper textarea,
+#Stage .wrapper .flashing {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 .feature-detects {
   visibility: hidden;
   pointer-events: none;
