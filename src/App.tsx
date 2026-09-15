@@ -50,6 +50,9 @@ function ensureScript(id: string, src: string, async = true): void {
 }
 
 function configureOriginalRuntime(): void {
+  if (!window.location.pathname.startsWith('/work')) {
+    window.history.replaceState(null, '', '/work');
+  }
   window._ENV_ = 'production';
   window._CMS_ = '%CMS%';
   window._CACHE_ = ACTIVE_THEORY_CONFIG.cacheKey;

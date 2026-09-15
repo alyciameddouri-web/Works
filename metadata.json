@@ -1,0 +1,6 @@
+{
+  "name": "Active Theory · Creative Digital Experiences",
+  "description": "Active Theory portfolio replica featuring interactive WebGL and 3D experiences.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
