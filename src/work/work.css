@@ -1,6 +1,9 @@
+/* Active Theory 3D Work Experience Stylesheet */
+
 #Stage,
-body,
-html {
+.work-stage,
+body.work-active,
+html.work-active {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -16,6 +19,7 @@ html {
   display: contents;
 }
 
+/* 3D WebGL Fonts */
 @font-face {
   font-family: 'nbarchitekt';
   src:
@@ -46,6 +50,7 @@ html {
   font-weight: 700;
 }
 
+/* iOS & Mobile Viewport Handling */
 .ios,
 .ios #Stage,
 .ios body {
@@ -66,6 +71,7 @@ html {
   overflow: hidden;
 }
 
+/* Scrollbar styling for WebGL UI */
 :root {
   --baropacity: 0.0;
 }
@@ -83,6 +89,7 @@ html {
   border-radius: 10px;
 }
 
+/* Stage interaction & select rules */
 #Stage,
 #Stage * {
   user-select: none;
@@ -117,6 +124,7 @@ div#Stage textarea,
   pointer-events: none !important;
 }
 
+/* Safe area insets for mobile notched devices */
 .feature-detects {
   visibility: hidden;
   pointer-events: none;

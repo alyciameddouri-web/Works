@@ -1,234 +1,46 @@
-# Work Experience — Integration Guide
+# Work Experience — Integration Manual
 
-This guide provides instructions for extracting and integrating the **Active Theory 3D Work Experience** into any React application (Vite, Next.js, Create React App, etc.).
-
----
-
-## 1. Overview
-
-The Work Experience is a standalone, high-performance WebGL/Frag3D interactive showcase featuring:
-- **Interactive 3D Spiral / Helix**: Kinetic project cards with real-time mouse fluid tracking and momentum scrolling.
-- **Glass / Refraction Shaders**: Dynamic chromatic aberration, Fresnel reflections, and frosted glass distortion.
-- **Case Study Transitions**: Cinematic camera tweening, particle dissipation, 3D typography, and video textures.
-- **Modal & Media System**: Responsive interactive video modal, full-screen playback, and case study links.
-- **Fully Decoupled Data & Routing**: Configure base routes (`/works`, `/work`, `/portfolio`) and pass custom project data via props or JSON.
+This manual explains how to integrate the **Active Theory 3D Work Experience** into any modern React application (Vite, Next.js, CRA, etc.).
 
 ---
 
-## 2. Minimum Portable Package (Exact File Manifest)
+## 1. Quick Integration
 
-### COPY THESE:
+### Step 1: Copy Files to Your Project
 
-#### 1. React Application Code (`src/`)
-```
-src/
-└── work/
-    ├── index.ts                      # Module entry point
-    ├── WorkExperience.tsx            # Main React component (auto-imports work.css)
-    ├── work.css                      # WebGL canvas (#Stage), font definitions & touch handling
-    ├── types.ts                      # TypeScript definitions (WorkProject, WorkExperienceProps)
-    ├── data/
-    │   └── defaultProjects.ts        # Default portfolio dataset
-    └── utils/
-        └── workBridge.ts             # Runtime bridge, route injector & lifecycle manager
-```
+1. Copy the `src/work` directory to your project's `src/` directory.
+2. Copy the required static assets from `public/assets/` into your project's `public/assets/` directory.
 
-#### 2. Static Assets (`public/`)
-```
-public/
-├── unsupported.html                  # WebGL 2.0 unsupported device fallback
-└── assets/
-    ├── js/
-    │   ├── app.1746999829739.js      # Core 3D engine, Work shaders, physics & render passes
-    │   └── hydra/
-    │       └── hydra-thread.js       # Background WebGL thread worker
-    │
-    ├── data/
-    │   ├── uil.1746999829739.json    # Camera, layout, and shader configs
-    │   ├── uil.json                  # Fallback layout definitions
-    │   └── timeline-main.json        # Animation timelines
-    │
-    ├── fonts/
-    │   ├── NBArchitektStd-Bold-export/
-    │   │   ├── NBArchitektStd-Bold.otf
-    │   │   ├── NBArchitektStd-Bold.woff
-    │   │   └── NBArchitektStd-Bold.woff2
-    │   ├── NBArchitektStd-Light-export/
-    │   │   ├── NBArchitektStd-Light.otf
-    │   │   ├── NBArchitektStd-Light.woff
-    │   │   └── NBArchitektStd-Light.woff2
-    │   ├── NBArchitektStd-Regular-export/
-    │   │   ├── NBArchitektStd-Regular.otf
-    │   │   ├── NBArchitektStd-Regular.woff
-    │   │   └── NBArchitektStd-Regular.woff2
-    │   ├── NBArchitektStd-Bold.json
-    │   ├── NBArchitektStd-Bold.png   # 3D WebGL bitmap font textures
-    │   ├── NBArchitektStd-Light.json
-    │   ├── NBArchitektStd-Light.png
-    │   ├── NBArchitektStd-Regular.json
-    │   └── NBArchitektStd-Regular.png
-    │
-    ├── geometry/
-    │   ├── work/
-    │   │   ├── chainlink.bin         # Card border 3D geometry
-    │   │   ├── cube.bin              # Card mesh geometry
-    │   │   └── splines_anim4-SPLINES.json
-    │   ├── particles/
-    │   │   ├── flower_spine-128.bin  # Dynamic particle flow spines
-    │   │   ├── flower_spine-256.bin
-    │   │   └── flower_spine-512.bin
-    │   ├── spine/
-    │   │   └── spine.bin
-    │   └── logo/
-    │       └── AT_logo.bin
-    │
-    ├── images/
-    │   ├── work/
-    │   │   └── env1.ktx2             # Environment reflection map
-    │   ├── room/
-    │   │   ├── matcap-test.jpg       # Matcap shader texture
-    │   │   └── matcap-test.ktx2
-    │   ├── particle/
-    │   │   └── matcap3.ktx2          # Particle shader matcap
-    │   ├── pbr/
-    │   │   ├── alien_cracked_2_basecolor.ktx2
-    │   │   ├── alien_cracked_2_normal.png
-    │   │   ├── black.png
-    │   │   ├── cliffs_MRO.ktx2
-    │   │   ├── corsica_beach-diffuse-RGBM.png
-    │   │   ├── corsica_beach-specular-RGBM.png
-    │   │   ├── cracked_ice_basecolor.ktx2
-    │   │   ├── damaged_road_basecolor.png
-    │   │   ├── damaged_road_mro.png
-    │   │   ├── damaged_road_normal.jpg
-    │   │   ├── damaged_road_normal.png
-    │   │   ├── desert_bedrock_normal.png
-    │   │   ├── jungle_soil_normal.png
-    │   │   ├── lut.png
-    │   │   └── woodplanks_normal.ktx2
-    │   └── ui/
-    │       ├── arrow.png
-    │       ├── at-labrds.jpg
-    │       ├── close.svg             # Modal close button icon
-    │       ├── globe.png
-    │       ├── ig.png
-    │       ├── in.png
-    │       ├── star.png
-    │       └── tw.png
-    │
-    └── video/
-        ├── reel.mp4                  # Video texture loop for project cards
-        └── reel-frame.jpg            # Video poster placeholder
-```
+### Step 2: Render `<WorkExperience />`
 
----
-
-## 3. Asset Classification
-
-### 🟢 REQUIRED (Strictly Necessary for Work)
-These files are critical. Without them, WebGL shaders, card textures, 3D text, or geometry will throw 404s or fail to render:
-- `src/work/*` (All 6 files in `src/work/`)
-- `public/assets/js/app.1746999829739.js`
-- `public/assets/js/hydra/hydra-thread.js`
-- `public/assets/data/uil.1746999829739.json`, `uil.json`, `timeline-main.json`
-- `public/assets/fonts/NBArchitektStd-*` (All font files & bitmap `.png`/`.json` textures)
-- `public/assets/geometry/work/*` (`chainlink.bin`, `cube.bin`, `splines_anim4-SPLINES.json`)
-- `public/assets/geometry/particles/*` (`flower_spine-*.bin`)
-- `public/assets/geometry/spine/spine.bin`
-- `public/assets/images/work/env1.ktx2`
-- `public/assets/images/room/matcap-test.jpg`, `matcap-test.ktx2`
-- `public/assets/images/particle/matcap3.ktx2`
-- `public/assets/images/pbr/*` (Surface normals & PBR textures)
-- `public/assets/images/ui/close.svg`, `at-labrds.jpg`, `arrow.png`
-- `public/assets/video/reel.mp4`, `reel-frame.jpg`
-
-### 🟡 OPTIONAL (Non-Critical Features)
-- `public/assets/music/*.mp3` (Ambient audio tracks; only needed if `soundEnabled={true}`)
-- `public/unsupported.html` (Fallback page for unsupported WebGL hardware)
-- `public/assets/js/lib/_draco/*` & `public/assets/js/lib/basis_transcoder.*` (Only if loading compressed custom Draco/Basis models)
-
-### 🔴 NOT REQUIRED (Do NOT Copy)
-These files belong to other sections (Home, Tree scene, About, old build artifacts) and are completely unused by Work:
-- `public/assets/images/tree_room/*` (All 22 tree room bake maps)
-- `public/assets/images/_scenelayout/*` (Debug layout files)
-- `public/assets/images/_lightvolume/*` (Light volume tests)
-- `public/assets/images/_lighting/*` (Area light tests)
-- `public/assets/images/lab.gif`, `lab.jpg`
-- `public/assets/images/unsupported-bg.jpg`
-- `public/assets/meta/*` (Favicons and old site manifest)
-- `public/assets/png/*`
-- `public/assets/css/style-scss.css` (Old precompiled stylesheet)
-- `public/assets/shaders/compiled.fs` (Unused placeholder)
-- `public/assets/js/hydra/hydra.js`, `hydra-wasm.js` (Unused placeholders)
-
----
-
-## 4. Usage in React
-
-### Basic Mounting
-
-Simply import `<WorkExperience />` and mount it:
+In your Works page or route component (e.g. `/works`):
 
 ```tsx
 import React from 'react';
 import { WorkExperience } from './work';
 
-export default function WorksSection() {
+export default function WorksPage() {
   return (
-    <section className="relative w-full h-screen bg-black overflow-hidden">
+    <main className="relative w-full h-screen bg-black overflow-hidden">
       <WorkExperience baseRoute="/works" />
-    </section>
+    </main>
   );
 }
 ```
 
----
-
-## 5. Router & Lifecycle Integration
-
-### Coexisting with Host Routes (`/about`, `/works`, `/contact`)
-
-The `WorkExperience` component handles mount/unmount cleanly:
-- **When Mounted (`/works`)**:
-  - Sets up runtime route prefix (`/works`).
-  - Activates WebGL canvas `#Stage`.
-- **When Navigating Away (`/about` or `/contact`)**:
-  - Automatically hides `#Stage` (`display: none; pointer-events: none`).
-  - Pauses any active video or audio playback.
-  - Removes custom event listeners.
-- **When Returning (`/works`)**:
-  - Restores `#Stage` display and interaction without having to re-download assets.
-
-Example with React Router:
-```tsx
-import { Routes, Route } from 'react-router-dom';
-import { WorkExperience } from './work';
-import AboutPage from './pages/AboutPage';
-import ContactPage from './pages/ContactPage';
-
-export function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<AboutPage />} />
-      <Route path="/about" element={<AboutPage />} />
-      <Route path="/works/*" element={<WorkExperience baseRoute="/works" />} />
-      <Route path="/contact" element={<ContactPage />} />
-    </Routes>
-  );
-}
-```
+*Note: CSS (`work.css`) is imported automatically by `WorkExperience.tsx` — no manual CSS import is required.*
 
 ---
 
-## 5. Custom Projects Data
+## 2. Custom Projects Data
 
-You can supply your own list of projects dynamically using the `projects` prop:
+Pass custom project items through the `projects` prop:
 
 ```tsx
 import React from 'react';
 import { WorkExperience, WorkProject } from './work';
 
-const customProjects: WorkProject[] = [
+const myProjects: WorkProject[] = [
   {
     title: 'Spatial Architecture',
     perma: 'spatial-arch',
@@ -256,38 +68,195 @@ const customProjects: WorkProject[] = [
   }
 ];
 
-export default function Portfolio() {
+export default function WorksPage() {
   return (
-    <WorkExperience
-      baseRoute="/works"
-      projects={customProjects}
-      onProjectSelect={(project) => console.log('Opened project:', project.title)}
-      onProjectClose={() => console.log('Closed project detail')}
-    />
+    <main className="relative w-full h-screen bg-black overflow-hidden">
+      <WorkExperience
+        baseRoute="/works"
+        projects={myProjects}
+        onProjectSelect={(project) => console.log('Opened:', project.title)}
+        onProjectClose={() => console.log('Closed project detail')}
+      />
+    </main>
   );
 }
 ```
 
 ---
 
-## 6. Props & API Reference
+## 3. Package Structure
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `baseRoute` | `string` | `"/work"` | URL prefix where the Work experience is mounted (e.g., `"/works"`, `"/portfolio"`). |
-| `projects` | `WorkProject[]` | `DEFAULT_WORK_PROJECTS` | Array of project objects rendered along the 3D helix. |
-| `initialSlug` | `string` | `undefined` | Opens a project detail view directly on mount (e.g. `"museum-of-weed"`). |
-| `onProjectSelect` | `(project: WorkProject) => void` | `undefined` | Callback fired when a user clicks or opens a project card. |
-| `onProjectClose` | `() => void` | `undefined` | Callback fired when the 3D detail view closes (via ESC or back navigation). |
-| `className` | `string` | `""` | Additional CSS classes for the container. |
-| `style` | `React.CSSProperties` | `undefined` | Inline styles for the container. |
-| `soundEnabled` | `boolean` | `true` | Enables/disables ambient audio playback. |
+```
+NEW PROJECT/
+├── src/
+│   └── work/
+│       ├── index.ts                  # Public exports
+│       ├── WorkExperience.tsx        # React component with auto-cleanup
+│       ├── work.css                  # Self-contained WebGL stage & font CSS
+│       ├── types.ts                  # TypeScript interfaces (WorkProject, etc.)
+│       ├── data/
+│       │   └── defaultProjects.ts    # Bundled portfolio dataset
+│       └── utils/
+│           └── workBridge.ts         # Runtime bridge & route injector
+│
+└── public/
+    ├── unsupported.html              # WebGL 2.0 unsupported device fallback
+    └── assets/
+        ├── js/
+        │   ├── app.1746999829739.js  # Core 3D engine, Work shaders, physics & render passes
+        │   └── hydra/
+        │       └── hydra-thread.js   # Background WebGL thread worker
+        │
+        ├── data/
+        │   ├── uil.1746999829739.json# Camera, layout, and shader configs
+        │   ├── uil.json              # Fallback layout definitions
+        │   └── timeline-main.json    # Animation timelines
+        │
+        ├── fonts/
+        │   ├── NBArchitektStd-Bold-export/
+        │   │   ├── NBArchitektStd-Bold.otf
+        │   │   ├── NBArchitektStd-Bold.woff
+        │   │   └── NBArchitektStd-Bold.woff2
+        │   ├── NBArchitektStd-Light-export/
+        │   │   ├── NBArchitektStd-Light.otf
+        │   │   ├── NBArchitektStd-Light.woff
+        │   │   └── NBArchitektStd-Light.woff2
+        │   ├── NBArchitektStd-Regular-export/
+        │   │   ├── NBArchitektStd-Regular.otf
+        │   │   ├── NBArchitektStd-Regular.woff
+        │   │   └── NBArchitektStd-Regular.woff2
+        │   ├── NBArchitektStd-Bold.json
+        │   ├── NBArchitektStd-Bold.png
+        │   ├── NBArchitektStd-Light.json
+        │   ├── NBArchitektStd-Light.png
+        │   ├── NBArchitektStd-Regular.json
+        │   └── NBArchitektStd-Regular.png
+        │
+        ├── geometry/
+        │   ├── work/
+        │   │   ├── chainlink.bin     # Card border 3D geometry
+        │   │   ├── cube.bin          # Card mesh geometry
+        │   │   └── splines_anim4-SPLINES.json
+        │   ├── particles/
+        │   │   ├── flower_spine-128.bin # Dynamic particle flow spines
+        │   │   ├── flower_spine-256.bin
+        │   │   └── flower_spine-512.bin
+        │   ├── spine/
+        │   │   └── spine.bin
+        │   └── logo/
+        │       └── AT_logo.bin
+        │
+        ├── images/
+        │   ├── work/
+        │   │   └── env1.ktx2         # Environment reflection map
+        │   ├── room/
+        │   │   ├── matcap-test.jpg   # Matcap shader texture
+        │   │   └── matcap-test.ktx2
+        │   ├── particle/
+        │   │   └── matcap3.ktx2      # Particle shader matcap
+        │   ├── pbr/
+        │   │   ├── alien_cracked_2_basecolor.ktx2
+        │   │   ├── alien_cracked_2_normal.png
+        │   │   ├── black.png
+        │   │   ├── cliffs_MRO.ktx2
+        │   │   ├── corsica_beach-diffuse-RGBM.png
+        │   │   ├── corsica_beach-specular-RGBM.png
+        │   │   ├── cracked_ice_basecolor.ktx2
+        │   │   ├── damaged_road_basecolor.png
+        │   │   ├── damaged_road_mro.png
+        │   │   ├── damaged_road_normal.jpg
+        │   │   ├── damaged_road_normal.png
+        │   │   ├── desert_bedrock_normal.png
+        │   │   ├── jungle_soil_normal.png
+        │   │   ├── lut.png
+        │   │   └── woodplanks_normal.ktx2
+        │   └── ui/
+        │       ├── arrow.png
+        │       ├── at-labrds.jpg
+        │       ├── close.svg         # Modal close button icon
+        │       ├── globe.png
+        │       ├── ig.png
+        │       ├── in.png
+        │       ├── star.png
+        │       └── tw.png
+        │
+        └── video/
+            ├── reel.mp4              # Video texture loop for project cards
+            └── reel-frame.jpg        # Video poster placeholder
+```
 
 ---
 
-## 7. Helper Functions (`workBridge`)
+## 4. Required Dependencies
 
-The module exports helper utilities in `src/work`:
+No extra npm packages are required beyond React standard packages:
+- `react` >= 18.0.0
+- `react-dom` >= 18.0.0
+
+---
+
+## 5. Props & Public API
+
+```ts
+import type { CSSProperties } from 'react';
+
+export interface WorkProject {
+  title: string;
+  perma: string;             // Unique URL slug (e.g. "museum-of-weed")
+  subhead?: string;
+  body?: string;
+  clientName?: string;
+  date?: string;             // Multiline display string (e.g. "2024\nCLIENT\nTYPE")
+  color?: string;            // Hex color code without '#' (e.g. "00f2fe")
+  tags?: string;             // Comma-separated tags
+  thumbnailURL?: string;     // Preview thumbnail
+  videoURL?: string;         // Video loop URL for 3D card
+  caseStudyURL?: string;     // External link or case study URL
+  priority?: number;
+  index?: number;
+}
+
+export interface WorkExperienceProps {
+  /** Route prefix where the component is mounted (default: "/work") */
+  baseRoute?: string;
+  /** Array of projects displayed in the 3D spiral */
+  projects?: WorkProject[];
+  /** Open a specific project detail view immediately on mount */
+  initialSlug?: string;
+  /** Callback fired when a project is selected/opened */
+  onProjectSelect?: (project: WorkProject) => void;
+  /** Callback fired when project detail view is closed */
+  onProjectClose?: () => void;
+  /** Custom container CSS class names */
+  className?: string;
+  /** Inline container styles */
+  style?: CSSProperties;
+  /** Enables/disables ambient soundtrack audio (default: true) */
+  soundEnabled?: boolean;
+}
+```
+
+---
+
+## 6. Router Integration (`/works` & `/works/:slug`)
+
+- When mounting `<WorkExperience baseRoute="/works" />`, clicking on any 3D project card updates the URL to `/works/[slug]` via HTML5 History pushState.
+- If deep-linked directly to `/works/museum-of-weed` or when `initialSlug="museum-of-weed"` is provided, the 3D camera smoothly opens that project's detail view directly.
+- In multi-page apps (e.g. `/about`, `/works`, `/contact`), configure your router to direct both `/works` and `/works/*` to the component rendering `<WorkExperience baseRoute="/works" />`.
+
+---
+
+## 7. Lifecycle & Unmount Handling
+
+When the user navigates away from `/works` (e.g., to `/about` or `/contact`):
+1. `WorkExperience` automatically hides the WebGL `#Stage` container (`display: none`, `pointer-events: none`).
+2. Clears body scroll locks and active classes so standard HTML pages scroll normally.
+3. Removes global window event listeners.
+4. When the user returns to `/works`, `WorkExperience` restores `#Stage` visibility and resumes interaction seamlessly.
+
+---
+
+## 8. Helper Functions
 
 ```ts
 import {
@@ -296,38 +265,17 @@ import {
   DEFAULT_WORK_PROJECTS
 } from './work';
 
-// Programmatically navigate to a project
+// Programmatically navigate to any project in the 3D scene
 openProjectSlug('museum-of-weed');
 
-// Programmatically close the active project
+// Programmatically close the detail view
 closeProjectDetail();
 ```
 
 ---
 
-## 8. Global Event Bridge
+## 9. Global Side Effects Summary
 
-The 3D engine dispatches a standard `CustomEvent` on `window`:
-
-```ts
-window.addEventListener('work:project-change', (e: Event) => {
-  const customEvent = e as CustomEvent<{ project: WorkProject | null; previous: WorkProject | null }>;
-  if (customEvent.detail.project) {
-    console.log('Active project:', customEvent.detail.project);
-  } else {
-    console.log('Returned to helix overview');
-  }
-});
-```
-
----
-
-## 9. Preserved Systems
-
-No simplifications or rewrites were made:
-- Full WebGL Frag3D / Nuke pipeline
-- Multi-pass Bloom, DownSample, UpSample, and Lens Flare
-- Particle flow spine and dynamic shader uniforms
-- Real-time glass refraction and Fresnel reflection passes
-- Touch and inertial momentum scroll physics
-- Direct slug deep-linking and browser history synchronization
+1. **DOM Canvas**: The engine dynamically appends `<div id="Stage"><canvas></div>` to the DOM. `WorkExperience` manages its visibility and interaction lifecycle on mount/unmount.
+2. **Static Asset Base**: Assets must be served under `/assets/...` from your host app's public root.
+3. **Touch Physics**: On mobile, `touch-action: none` is applied while Work is active to facilitate smooth inertial momentum navigation.
